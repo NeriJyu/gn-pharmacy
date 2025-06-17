@@ -3,6 +3,7 @@ import Medicine from "../models/medicine.model";
 
 export default class MedicineRepository {
   async create(medicine: I_Medicine): Promise<I_Medicine> {
+    medicine.name = medicine.name.toLowerCase().trim();
     const newMedicine = new Medicine(medicine);
     return await newMedicine.save();
   }

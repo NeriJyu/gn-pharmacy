@@ -29,11 +29,10 @@ export default class StockRepository {
     return await Stock.find().populate("pharmacy").populate("medicine").exec();
   }
 
-  async findAvailableByMedicine(medicineId: string): Promise<I_Stock[]> {
-    console.log("medicineId: ", medicineId);
-
+  async findAvailableByMedicine(medicineId: string | Types.ObjectId): Promise<I_Stock[]> {
     return await Stock.find({ medicineId })
       .populate("pharmacyId")
+      .populate("medicineId")
       .exec();
   }
 

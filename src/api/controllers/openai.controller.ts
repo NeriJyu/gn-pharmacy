@@ -1,57 +1,81 @@
-import { Types } from "mongoose";
 import { I_Medicine } from "../../interfaces/medicine.interfaces";
 import MedicineRepository from "../repositories/medicine.repository";
 import StockRepository from "../repositories/stock.repository";
 import OpenAIService from "../services/openai.service";
 import PharmacyRepository from "../repositories/pharmacy.repository";
+import PharmacyService from "../services/pharmacy.service";
 
 export default class OpenAIController {
   private openaiService = new OpenAIService();
+  private pharmacyService = new PharmacyService();
+
   private medicineRepository = new MedicineRepository();
   private stockRepository = new StockRepository();
   private pharmacyRepository = new PharmacyRepository();
 
   async askChatGPT(message: string): Promise<string> {
-    console.log("message: ", message);
-
     const gptResponse = await this.openaiService.askChatGPT(message);
 
     return gptResponse;
   }
 
   async recommendateMedicine(message: string): Promise<string> {
-    const medicine: I_Medicine | null =
-      await this.medicineRepository.findByName(message);
+    const selectedMedicines = await this.openaiService.selectMedicines(message);
 
-    if (!medicine?._id) {
-      return "Medicine has no ID";
-    }
-
-    const stocks = await this.stockRepository.findAvailableByMedicine(
-      medicine._id
+    const medicines = await Promise.all(
+      selectedMedicines.map(async (medicineName) => {
+        return await this.medicineRepository.findByName(medicineName);
+      })
     );
-    console.log("stocks: ", stocks);
-    
 
-    if (stocks.length === 0) {
-      return "No stock found for this medicine";
-    }
+    if (medicines.every((med) => med === null))
+      return "No medicines found for the provided names";
 
-    const stockDetails = await Promise.all(
-      stocks.map(async (stock) => {
+    const validMedicines = medicines.filter(
+      (medicine): medicine is I_Medicine => medicine?._id !== undefined
+    );
+
+    const validMedicineNames = validMedicines.map((med) => med.name);
+
+    const stocks = await Promise.all(
+      validMedicines.map(async (medicine) => {
+        return await this.stockRepository.findAvailableByMedicine(medicine._id);
+      })
+    );
+
+    if (stocks.length === 0) return "No stock found for this medicine";
+
+    const flatStocks = stocks.flat();
+
+    const pharmacyDetails = await Promise.all(
+      flatStocks.map(async (stock) => {
         const pharmacy = await this.pharmacyRepository.findById(
           stock.pharmacyId
         );
+
+        if (!pharmacy) throw new Error("Pharmacy not found");
+
         return {
-          pharmacyName: pharmacy?.name || "Unknown Pharmacy",
+          phone: pharmacy.phone,
+          address: pharmacy.address,
+          pharmacyName: pharmacy.name,
+          medicineName: stock.medicineId.name,
           price: stock.price,
           quantity: stock.quantity,
         };
       })
     );
 
-    console.log("stockDetails: ", stockDetails);
+    const formattedPharmacies = this.pharmacyService.formatPharmacyListToString(
+      pharmacyDetails,
+      validMedicineNames
+    );
 
-    return "as";
+    const recommendateMedicine = await this.openaiService.recommendateMedicine(
+      formattedPharmacies,
+      validMedicineNames
+    );
+
+    return recommendateMedicine;
   }
 }

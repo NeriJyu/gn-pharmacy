@@ -1,10 +1,8 @@
-import { Types } from "mongoose";
-
 export interface I_Pharmacy {
   _id?: string;
-  name: String;
+  name: string;
   address: I_PharmacyAddress;
-  phone: String;
+  phone: string;
 }
 
 export interface I_PharmacyAddress {
@@ -15,4 +13,13 @@ export interface I_PharmacyAddress {
   city: string;
   state: string;
   cep: string;
+}
+
+export interface I_PharmacyStock {
+  phone: string;
+  address: I_PharmacyAddress;
+  medicineName: String;
+  pharmacyName: string;
+  price: Number;
+  quantity: Number;
 }
