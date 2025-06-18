@@ -1,30 +1,30 @@
 import { I_PharmacyStock } from "../../interfaces/pharmacy.interfaces";
+import { I_Stock } from "../../interfaces/stock.interfaces";
+import PharmacyRepository from "../repositories/pharmacy.repository";
 
 export default class PharmacyService {
-  formatPharmacyListToString(
-    pharmacies: I_PharmacyStock[],
-    validMedicineNames: String[]
-  ): string {
-    if (!pharmacies.length) {
-      const formattedNames = validMedicineNames.join(", ");
-      return `Nenhuma farmácia encontrada com os medicamentos: ${formattedNames}.`;
-    }
+  private pharmacyRepository = new PharmacyRepository();
 
-    return pharmacies
-      .map((pharmacy, index) => {
-        const { pharmacyName, phone, address, price, quantity, medicineName } = pharmacy;
-        const { street, number, complement, neighborhood, city, state, cep } =
-          address;
+  async formatPharmacyDetails(
+    validStockList: I_Stock[]
+  ): Promise<I_PharmacyStock[]> {
+    return await Promise.all(
+      validStockList.map(async (stock) => {
+        const pharmacy = await this.pharmacyRepository.findById(
+          stock.pharmacyId
+        );
 
-        const endereco = `${street}, ${number}${
-          complement ? `, ${complement}` : ""
-        } - ${neighborhood}, ${city} - ${state}, CEP: ${cep}`;
+        if (!pharmacy) throw new Error("Pharmacy not found");
 
-        return `Farmácia ${index + 1}: Nome: ${pharmacyName} | Endereço: ${endereco} | Telefone: ${phone} | Medicamento: ${medicineName} | Preço: R$ ${price.toFixed(
-          2
-        )} | Quantidade: ${quantity}`;
+        return {
+          phone: pharmacy.phone,
+          address: pharmacy.address,
+          pharmacyName: pharmacy.name,
+          medicineName: stock.medicineId.name,
+          price: stock.price,
+          quantity: stock.quantity,
+        };
       })
-      .join(" | ");
+    );
   }
 }
-

@@ -4,6 +4,6 @@ export interface I_Stock {
   _id?: string;
   pharmacyId: string;
   medicineId: I_Medicine;
-  price: Number;
-  quantity: Number;
+  price: number;
+  quantity: number;
 }

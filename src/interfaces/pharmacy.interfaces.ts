@@ -18,8 +18,8 @@ export interface I_PharmacyAddress {
 export interface I_PharmacyStock {
   phone: string;
   address: I_PharmacyAddress;
-  medicineName: String;
+  medicineName: string;
   pharmacyName: string;
-  price: Number;
-  quantity: Number;
+  price: number;
+  quantity: number;
 }
