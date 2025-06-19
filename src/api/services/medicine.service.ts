@@ -7,8 +7,8 @@ export default class MedicineService {
 
   private medicineRepository = new MedicineRepository();
 
-  async validateMedicines(message: string): Promise<I_Medicine[]> {
-    const selectedMedicines = await this.openaiService.selectMedicines(message);
+  async validateMedicines(message: string, audio?: any): Promise<I_Medicine[]> {
+    const selectedMedicines = await this.openaiService.selectMedicines(message, audio);
 
     const medicines = await Promise.all(
       selectedMedicines.map(async (medicineName) => {

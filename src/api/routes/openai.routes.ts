@@ -2,6 +2,7 @@ import express from "express";
 import { handleError } from "../../utils/err.util";
 import { StatusCodeErrorEnum } from "../enums/errors.enum";
 import OpenAIController from "../controllers/openai.controller";
+import { upload } from "../../utils/uploader.util";
 
 const openaiRouter = express.Router();
 const openaiController = new OpenAIController();
@@ -24,24 +25,29 @@ openaiRouter.post("/chat", async (req, res) => {
   }
 });
 
-openaiRouter.post("/recommendate-medicine", async (req, res) => {
-  try {
-    const recommendateMedicine = await openaiController.recommendateMedicine(
-      req.body.message
-    );
+openaiRouter.post(
+  "/recommendate-medicine",
+  upload.single("audio"),
+  async (req, res) => {
+    try {
+      const recommendateMedicine = await openaiController.recommendateMedicine(
+        req.body.message,
+        req.file?.buffer
+      );
 
-    res.status(200).send({
-      status: "SUCCESS",
-      data: recommendateMedicine,
-    });
-  } catch (err) {
-    handleError(
-      err,
-      res,
-      "An error occurred while processing your request",
-      StatusCodeErrorEnum.BAD_REQUEST
-    );
+      res.status(200).send({
+        status: "SUCCESS",
+        data: recommendateMedicine,
+      });
+    } catch (err) {
+      handleError(
+        err,
+        res,
+        "An error occurred while processing your request",
+        StatusCodeErrorEnum.BAD_REQUEST
+      );
+    }
   }
-});
+);
 
 export default openaiRouter;

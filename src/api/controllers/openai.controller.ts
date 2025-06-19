@@ -15,9 +15,15 @@ export default class OpenAIController {
     return gptResponse;
   }
 
-  async recommendateMedicine(message: string): Promise<string> {
+  async recommendateMedicine(
+    message: string,
+    audioBuffer?: Buffer<ArrayBufferLike>
+  ): Promise<string> {
+    this.openaiService.validateRecommendateMedicine(message, audioBuffer);
+
     const validMedicines = await this.medicineService.validateMedicines(
-      message
+      message,
+      audioBuffer
     );
 
     const validMedicineNames =
