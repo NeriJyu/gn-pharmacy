@@ -22,6 +22,41 @@ export default class OpenAIService {
     return response.choices[0].message.content || "";
   }
 
+  async selectMedicinesByImage(
+    imageBuffer: any,
+    mimetype: string
+  ): Promise<string[]> {
+    const base64Image = `data:${mimetype};base64,${imageBuffer.toString(
+      "base64"
+    )}`;
+
+    const response = await this.openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: OpenAIEnum.INSTRUCTION_SELECT_MEDICINES_BY_IMAGE.toString(),
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: OpenAIEnum.CONTENT_SELECT_MEDICINES_BY_IMAGE.toString(),
+            },
+            { type: "image_url", image_url: { url: base64Image } },
+          ],
+        },
+      ],
+    });
+
+    const userMessage = response.choices[0].message.content || "";
+
+    const medicinesArray = await this.selectMedicinesByText(userMessage);
+
+    return medicinesArray;
+  }
+
   async selectMedicinesByAudio(audioBuffer: any): Promise<string[]> {
     const filePath = join(tmpdir(), `audio-${Date.now()}.wav`);
     await fsp.writeFile(filePath, audioBuffer);
@@ -54,9 +89,14 @@ export default class OpenAIService {
 
   async selectMedicines(
     message: string,
-    audio?: Buffer<ArrayBufferLike>
+    file?: Express.Multer.File
   ): Promise<string[]> {
-    if (audio) return await this.selectMedicinesByAudio(audio);
+    if (file?.mimetype.startsWith("image/")) {
+      return await this.selectMedicinesByImage(file.buffer, file.mimetype);
+    }
+
+    if (file?.mimetype.startsWith("audio/"))
+      return await this.selectMedicinesByAudio(file.buffer);
 
     return await this.selectMedicinesByText(message);
   }
@@ -100,11 +140,8 @@ export default class OpenAIService {
     return result.trim();
   };
 
-  validateRecommendateMedicine(
-    message: string,
-    audioBuffer?: Buffer<ArrayBufferLike>
-  ) {
-    if (!message && !audioBuffer)
-      throw new Error("You need to send a text message or an audio");
+  validateRecommendateMedicine(message: any, file?: Express.Multer.File) {
+    if (!message && !file)
+      throw new Error("You need to send a text message or an audio/image");
   }
 }

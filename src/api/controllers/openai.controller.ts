@@ -17,13 +17,13 @@ export default class OpenAIController {
 
   async recommendateMedicine(
     message: string,
-    audioBuffer?: Buffer<ArrayBufferLike>
+    file?: Express.Multer.File
   ): Promise<string> {
-    this.openaiService.validateRecommendateMedicine(message, audioBuffer);
+    this.openaiService.validateRecommendateMedicine(message, file);
 
     const validMedicines = await this.medicineService.validateMedicines(
       message,
-      audioBuffer
+      file
     );
 
     const validMedicineNames =

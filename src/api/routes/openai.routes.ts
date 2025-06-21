@@ -27,12 +27,12 @@ openaiRouter.post("/chat", async (req, res) => {
 
 openaiRouter.post(
   "/recommendate-medicine",
-  upload.single("audio"),
+  upload.single("file"),
   async (req, res) => {
     try {
       const recommendateMedicine = await openaiController.recommendateMedicine(
-        req.body.message,
-        req.file?.buffer
+        req.body?.message,
+        req.file
       );
 
       res.status(200).send({
