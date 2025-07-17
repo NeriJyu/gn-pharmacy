@@ -1,10 +1,13 @@
 import { I_User } from "../../interfaces/user.interfaces";
+import { generateHash } from "../../utils/hash.util";
 import UserRepository from "../repositories/user.repository";
 
 export default class UserController {
   private userRepository = new UserRepository();
 
   async create(user: I_User): Promise<I_User> {
+    user.password = await generateHash(user.password);
+
     return await this.userRepository.create(user);
   }
 
