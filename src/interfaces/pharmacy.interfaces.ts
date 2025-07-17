@@ -13,6 +13,8 @@ export interface I_PharmacyAddress {
   city: string;
   state: string;
   cep: string;
+  lat: string;
+  lon: string;
 }
 
 export interface I_PharmacyStock {

@@ -7,8 +7,14 @@ export default class MedicineService {
 
   private medicineRepository = new MedicineRepository();
 
-  async validateMedicines(message: any, fileBuffer?: any): Promise<I_Medicine[]> {
-    const selectedMedicines = await this.openaiService.selectMedicines(message, fileBuffer);
+  async validateMedicines(
+    message: any,
+    fileBuffer?: any
+  ): Promise<I_Medicine[]> {
+    const selectedMedicines = await this.openaiService.selectMedicines(
+      message,
+      fileBuffer
+    );
 
     const medicines = await Promise.all(
       selectedMedicines.map(async (medicineName) => {
@@ -26,8 +32,7 @@ export default class MedicineService {
     return validMedicines;
   }
 
-  validateMedicineName(validMedicines: I_Medicine[]): string[]{
+  validateMedicineName(validMedicines: I_Medicine[]): string[] {
     return validMedicines.map((med) => med.name);
   }
-
 }

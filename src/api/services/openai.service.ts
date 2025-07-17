@@ -6,8 +6,11 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { promises as fsp } from "fs";
 import fs from "fs";
+import GeoapifyService from "./geoapify.service";
 
 export default class OpenAIService {
+  private geoapifyService = new GeoapifyService();
+
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -91,9 +94,8 @@ export default class OpenAIService {
     message: string,
     file?: Express.Multer.File
   ): Promise<string[]> {
-    if (file?.mimetype.startsWith("image/")) {
+    if (file?.mimetype.startsWith("image/"))
       return await this.selectMedicinesByImage(file.buffer, file.mimetype);
-    }
 
     if (file?.mimetype.startsWith("audio/"))
       return await this.selectMedicinesByAudio(file.buffer);
@@ -103,7 +105,9 @@ export default class OpenAIService {
 
   formatMedicinesWithPharmacies = (
     pharmacies: I_PharmacyStock[],
-    medicines: String[]
+    medicines: string[],
+    userLat: string,
+    userLon: string
   ): string => {
     if (!pharmacies.length) {
       const formattedNames = medicines.join(", ");
@@ -118,12 +122,33 @@ export default class OpenAIService {
       grouped[pharmacy.medicineName.toString()].push(pharmacy);
     });
 
+    const lat1 = parseFloat(userLat);
+    const lon1 = parseFloat(userLon);
+
     let result = "";
     for (const [medicineName, entries] of Object.entries(grouped)) {
+      const entriesWithDistance = entries
+        .map((pharmacy) => {
+          const { lat, lon } = pharmacy.address;
+          if (lat && lon) {
+            const distanceKm = this.geoapifyService.calculateDistanceInKM(
+              lat1,
+              lon1,
+              parseFloat(lat),
+              parseFloat(lon)
+            );
+            return { ...pharmacy, distanceKm };
+          }
+          return { ...pharmacy, distanceKm: Infinity };
+        })
+        .sort((a, b) => a.distanceKm - b.distanceKm);
+
       result += `O remédio '${medicineName}' está disponível na(s) seguinte(s) farmácia(s):\n\n`;
 
-      entries.forEach((pharmacy) => {
-        const { pharmacyName, phone, address, price, quantity } = pharmacy;
+      entriesWithDistance.forEach((pharmacy) => {
+        const { pharmacyName, phone, address, price, quantity, distanceKm } =
+          pharmacy;
+
         const { street, number, complement, neighborhood, city, state, cep } =
           address;
 
@@ -131,9 +156,14 @@ export default class OpenAIService {
           complement ? `, ${complement}` : ""
         } - ${neighborhood}, ${city} - ${state}, CEP: ${cep}`;
 
+        const distanceInfo =
+          distanceKm !== Infinity
+            ? `🌍 Distância: ${distanceKm.toFixed(2)} km  \n`
+            : "";
+
         result += `🏥 Nome: ${pharmacyName}  \n📍 Endereço: ${endereco}  \n📞 Telefone: ${phone}  \n💰 Preço: R$ ${price.toFixed(
           2
-        )}  \n📦 Quantidade disponível: ${quantity}  \n\n`;
+        )}  \n📦 Quantidade disponível: ${quantity}  \n${distanceInfo}\n`;
       });
     }
 

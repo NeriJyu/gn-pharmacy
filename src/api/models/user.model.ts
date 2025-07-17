@@ -1,10 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import {
-  I_Pharmacy,
-  I_PharmacyAddress,
-} from "../../interfaces/pharmacy.interfaces";
+import { I_User, I_UserAddress } from "../../interfaces/user.interfaces";
 
-const PharmacyAddressSchema = new Schema<I_PharmacyAddress>({
+const UserAddressSchema = new Schema<I_UserAddress>({
   street: { type: String, required: true },
   number: { type: String, required: true },
   complement: { type: String },
@@ -16,11 +13,13 @@ const PharmacyAddressSchema = new Schema<I_PharmacyAddress>({
   lon: { type: String, required: true },
 });
 
-const PharmacySchema = new Schema<I_Pharmacy>(
+const UserSchema = new Schema<I_User>(
   {
     name: { type: String, required: true },
-    address: { type: PharmacyAddressSchema, required: true },
-    phone: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    address: { type: UserAddressSchema, required: true },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
   },
   {
     timestamps: true,
@@ -33,4 +32,4 @@ const PharmacySchema = new Schema<I_Pharmacy>(
   }
 );
 
-export default mongoose.model<I_Pharmacy>("Pharmacy", PharmacySchema);
+export default mongoose.model<I_User>("User", UserSchema);

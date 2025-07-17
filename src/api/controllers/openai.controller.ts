@@ -39,7 +39,9 @@ export default class OpenAIController {
     const recommendateMedicine =
       this.openaiService.formatMedicinesWithPharmacies(
         formatedPharmacyDetails,
-        validMedicineNames
+        validMedicineNames,
+        "-23.555739297468357",
+        "-46.690467698734174"
       );
 
     return recommendateMedicine;

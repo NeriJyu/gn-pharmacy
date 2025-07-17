@@ -1,8 +1,10 @@
 import { I_Medicine } from "../../interfaces/medicine.interfaces";
 import MedicineRepository from "../repositories/medicine.repository";
+import GeoapifyService from "../services/geoapify.service";
 
 export default class MedicineController {
   private medicineRepository = new MedicineRepository();
+  private geoapifyService = new GeoapifyService();
 
   async create(medicine: I_Medicine): Promise<I_Medicine> {
     return await this.medicineRepository.create(medicine);
@@ -19,6 +21,13 @@ export default class MedicineController {
   }
 
   async getAll(): Promise<I_Medicine[]> {
+    const teste = await this.geoapifyService.coordinatesByCep(
+      "05434000"
+    );
+
+    console.log("teste: ", teste);
+    
+
     return await this.medicineRepository.findAll();
   }
 

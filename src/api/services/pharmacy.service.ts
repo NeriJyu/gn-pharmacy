@@ -11,7 +11,7 @@ export default class PharmacyService {
     return await Promise.all(
       validStockList.map(async (stock) => {
         const pharmacy = await this.pharmacyRepository.findById(
-          stock.pharmacyId
+          stock.pharmacyId._id!
         );
 
         if (!pharmacy) throw new Error("Pharmacy not found");
