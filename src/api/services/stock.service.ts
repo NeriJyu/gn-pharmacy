@@ -8,7 +8,7 @@ export default class StockService {
   async validateStockList(validMedicines: I_Medicine[]): Promise<I_Stock[]> {
     const stocks = await Promise.all(
       validMedicines.map(async (medicine) => {
-        return await this.stockRepository.findAvailableByMedicine(medicine._id);
+        return await this.stockRepository.findAvailableByMedicine(medicine.id);
       })
     );
 

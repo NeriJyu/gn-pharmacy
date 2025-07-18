@@ -1,49 +1,90 @@
-import { I_CreatedUser, I_User } from "../../interfaces/user.interfaces";
-import User from "../models/user.model";
+import { I_User } from "../../interfaces/user.interfaces";
+import UserModel from "../models/user.model";
 
 export default class UserRepository {
-  async create(user: I_User): Promise<I_CreatedUser> {
-    user.email = user.email.toLowerCase().trim();
-    const newUser = new User(user);
+  async create(
+    user: Omit<I_User, "id" | "createdAt" | "updatedAt">
+  ): Promise<I_User> {
+    const userToSave = {
+      ...user,
+      email: user.email.toLowerCase().trim(),
+    };
 
-    const createdUser = await newUser.save();
+    const newUser = await UserModel.create(userToSave);
+    const userObject = newUser.toJSON() as I_User;
 
-    const createdUserWithoutPassword: I_CreatedUser = createdUser.toObject(); // transforma o documento
-    delete createdUserWithoutPassword.password;
+    delete userObject.password;
 
-    return createdUserWithoutPassword;
+    return userObject;
   }
 
   async findById(id: string): Promise<I_User | null> {
-    return await User.findById(id).exec();
+    const user = await UserModel.get(id);
+    if (!user) {
+      return null;
+    }
+
+    const userObject = user.toJSON() as I_User;
+    delete userObject.password;
+
+    return userObject;
   }
 
   async findByEmail(email: string): Promise<I_User | null> {
-    return await User.findOne({ email: email.toLowerCase().trim() }).exec();
+    const result = await UserModel.query("email")
+      .eq(email.toLowerCase().trim())
+      .exec();
+    if (result.count === 0 || !result[0]) {
+      return null;
+    }
+
+    const userObject = result[0].toJSON() as I_User;
+    delete userObject.password;
+
+    return userObject;
   }
 
   async findByEmailWithPassword(email: string): Promise<I_User | null> {
-    return await User.findOne({ email: email.toLowerCase().trim() })
-      .select("+password")
+    const result = await UserModel.query("email")
+      .eq(email.toLowerCase().trim())
       .exec();
+
+    return result.count > 0 && result[0]
+      ? (result[0].toJSON() as I_User)
+      : null;
   }
 
   async findAll(): Promise<I_User[]> {
-    return await User.find().exec();
+    const results = await UserModel.scan().exec();
+    const users = results.toJSON() as I_User[];
+
+    users.forEach((user) => delete user.password);
+
+    return users;
   }
 
   async updateById(
     id: string,
-    updateData: Partial<I_User>
+    updateData: Partial<Omit<I_User, "id">>
   ): Promise<I_User | null> {
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-    }).exec();
+    if (updateData.password) delete updateData.password;
+    if (updateData.email) {
+      updateData.email = updateData.email.toLowerCase().trim();
+    }
 
-    return updatedUser;
+    await UserModel.update({ id }, updateData);
+
+    return this.findById(id);
   }
 
   async deleteById(id: string): Promise<I_User | null> {
-    return await User.findByIdAndDelete(id).exec();
+    const userToDelete = await this.findById(id);
+    if (!userToDelete) {
+      return null;
+    }
+
+    await UserModel.delete(id);
+
+    return userToDelete;
   }
 }

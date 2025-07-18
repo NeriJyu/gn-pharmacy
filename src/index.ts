@@ -3,8 +3,8 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import { connectToDatabase } from "./config/database";
 import router from "./api/routes/index.routes";
+import "./config/database"; 
 
 const app = express();
 app.use(express.json());
@@ -13,12 +13,10 @@ const port = process.env.PORT || 3000;
 
 app.use("/api", router);
 app.get("/", (req, res) => {
-  res.send("API rodando");
+  res.send("API rodando com DynamoDB e Dynamoose");
 });
 
 const startServer = async () => {
-  await connectToDatabase();
-
   app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
   });

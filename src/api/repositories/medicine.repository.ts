@@ -1,35 +1,49 @@
 import { I_Medicine } from "../../interfaces/medicine.interfaces";
-import Medicine from "../models/medicine.model";
+import MedicineModel from "../models/medicine.model";
 
 export default class MedicineRepository {
-  async create(medicine: I_Medicine): Promise<I_Medicine> {
-    medicine.name = medicine.name.toLowerCase().trim();
-    const newMedicine = new Medicine(medicine);
-    return await newMedicine.save();
+
+  async create(medicine: Omit<I_Medicine, "id" | "createdAt" | "updatedAt">): Promise<I_Medicine> {
+    const medicineToSave = {
+      ...medicine,
+      name: medicine.name.toLowerCase().trim(),
+    };
+
+    const newMedicine = await MedicineModel.create(medicineToSave);
+    
+    return newMedicine.toJSON() as I_Medicine;
   }
 
   async findById(id: string): Promise<I_Medicine | null> {
-    return await Medicine.findById(id).exec();
+    const medicine = await MedicineModel.get(id);
+    return medicine ? (medicine.toJSON() as I_Medicine) : null;
   }
 
   async findByName(name: string): Promise<I_Medicine | null> {
-    return await Medicine.findOne({ name }).exec();
+    const result = await MedicineModel.query("name").eq(name.toLowerCase().trim()).exec();
+
+    return result.count > 0 && result[0] ? (result[0].toJSON() as I_Medicine) : null;
   }
 
   async findAll(): Promise<I_Medicine[]> {
-    return await Medicine.find().exec();
+    const results = await MedicineModel.scan().exec();
+    return results.toJSON() as I_Medicine[];
   }
 
   async updateById(
     id: string,
-    updateData: Partial<I_Medicine>
+    updateData: Partial<Omit<I_Medicine, "id">>
   ): Promise<I_Medicine | null> {
-    return await Medicine.findByIdAndUpdate(id, updateData, {
-      new: true,
-    }).exec();
+    await MedicineModel.update({ id }, updateData);
+    return this.findById(id);
   }
 
   async deleteById(id: string): Promise<I_Medicine | null> {
-    return await Medicine.findByIdAndDelete(id).exec();
+    const medicineToDelete = await this.findById(id);
+    if (!medicineToDelete) {
+      return null;
+    }
+    await MedicineModel.delete(id);
+    return medicineToDelete;
   }
 }

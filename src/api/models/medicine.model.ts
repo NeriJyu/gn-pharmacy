@@ -1,13 +1,37 @@
-import mongoose, { Schema } from "mongoose";
-import { I_Medicine } from "../../interfaces/medicine.interfaces";
+import dynamoose from "dynamoose";
+import { v4 as uuid } from "uuid";
 
-const MedicineSchema = new Schema(
+const MedicineSchema = new dynamoose.Schema(
   {
-    name: { type: String, required: true, unique: true },
-    description: { type: String },
-    activeIngredients: { type: [String] },
+    id: {
+      type: String,
+      hashKey: true,
+      default: uuid,
+    },
+    name: {
+      type: String,
+      required: true,
+      index: {
+        name: "nameIndex",
+        type: "global",
+      },
+    },
+    description: {
+      type: String,
+    },
+    activeIngredients: {
+      type: Array,
+      schema: [String],
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model<I_Medicine>("Medicine", MedicineSchema);
+const MedicineModel = dynamoose.model("Medicine", MedicineSchema, {
+    create: true,
+    waitForActive: true,
+});
+
+export default MedicineModel;

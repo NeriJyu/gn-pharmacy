@@ -1,10 +1,3 @@
-export interface I_Pharmacy {
-  _id?: string;
-  name: string;
-  address: I_PharmacyAddress;
-  phone: string;
-}
-
 export interface I_PharmacyAddress {
   street: string;
   number: string;
@@ -15,6 +8,15 @@ export interface I_PharmacyAddress {
   cep: string;
   lat: string;
   lon: string;
+}
+
+export interface I_Pharmacy {
+  id: string;
+  name: string;
+  address: I_PharmacyAddress;
+  phone: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface I_PharmacyStock {

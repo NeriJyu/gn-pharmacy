@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
-
 export interface I_Medicine {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   activeIngredients: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

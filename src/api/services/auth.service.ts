@@ -12,11 +12,11 @@ class AuthService {
     const user = await this.userRepository.findByEmailWithPassword(email);
     if (!user) throw new Error("User not found");
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password!);
     if (!isPasswordValid) throw new Error("Invalid email or password");
 
     const payload = {
-      _id: user._id,
+      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -37,7 +37,7 @@ class AuthService {
       refreshToken: refreshToken,
     };
 
-     this.userRepository.updateById(user._id, userToUpdate);
+     this.userRepository.updateById(user.id, userToUpdate);
 
     return {
       accessToken,
@@ -58,7 +58,7 @@ class AuthService {
       }
 
       const newPayload = {
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -87,7 +87,7 @@ class AuthService {
         newRefreshToken,
       };
 
-      await this.userRepository.updateById(user._id, userToUpdate);
+      await this.userRepository.updateById(user.id, userToUpdate);
 
       return {
         accessToken: newAccessToken,

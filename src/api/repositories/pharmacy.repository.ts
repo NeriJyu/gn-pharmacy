@@ -1,34 +1,38 @@
 import { I_Pharmacy } from "../../interfaces/pharmacy.interfaces";
-import Pharmacy from "../models/pharmacy.model";
+import PharmacyModel from "../models/pharmacy.model";
 
 export default class PharmacyRepository {
-  async create(pharmacy: I_Pharmacy): Promise<I_Pharmacy> {
-    const newPharmacy = new Pharmacy(pharmacy);
-    return await newPharmacy.save();
+  async create(pharmacy: Omit<I_Pharmacy, "id" | "createdAt" | "updatedAt">): Promise<I_Pharmacy> {
+    const newPharmacy = await PharmacyModel.create(pharmacy);
+    return newPharmacy.toJSON() as I_Pharmacy;
   }
 
   async findById(id: string): Promise<I_Pharmacy | null> {
-    return await Pharmacy.findById(id).exec();
+    const pharmacy = await PharmacyModel.get(id);
+    return pharmacy ? (pharmacy.toJSON() as I_Pharmacy) : null;
   }
 
   async findByName(name: string): Promise<I_Pharmacy | null> {
-    return await Pharmacy.findOne({ name }).exec();
+    const result = await PharmacyModel.query("name").eq(name).exec();
+    return result.count > 0 && result[0] ? (result[0].toJSON() as I_Pharmacy) : null;
   }
 
   async findAll(): Promise<I_Pharmacy[]> {
-    return await Pharmacy.find().exec();
+    const results = await PharmacyModel.scan().exec();
+    return results.toJSON() as I_Pharmacy[];
   }
 
-  async updateById(
-    id: string,
-    updateData: Partial<I_Pharmacy>
-  ): Promise<I_Pharmacy | null> {
-    return await Pharmacy.findByIdAndUpdate(id, updateData, {
-      new: true,
-    }).exec();
+  async updateById(id: string, updateData: Partial<Omit<I_Pharmacy, "id">>): Promise<I_Pharmacy | null> {
+    await PharmacyModel.update({ id }, updateData);
+    return this.findById(id);
   }
 
   async deleteById(id: string): Promise<I_Pharmacy | null> {
-    return await Pharmacy.findByIdAndDelete(id).exec();
+    const pharmacyToDelete = await this.findById(id);
+    if (!pharmacyToDelete) {
+      return null;
+    }
+    await PharmacyModel.delete(id);
+    return pharmacyToDelete;
   }
 }

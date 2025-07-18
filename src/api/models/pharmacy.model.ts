@@ -1,10 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import {
-  I_Pharmacy,
-  I_PharmacyAddress,
-} from "../../interfaces/pharmacy.interfaces";
+import dynamoose from "dynamoose";
+import { v4 as uuid } from "uuid";
 
-const PharmacyAddressSchema = new Schema<I_PharmacyAddress>({
+const PharmacyAddressSchema = new dynamoose.Schema({
   street: { type: String, required: true },
   number: { type: String, required: true },
   complement: { type: String },
@@ -16,21 +13,39 @@ const PharmacyAddressSchema = new Schema<I_PharmacyAddress>({
   lon: { type: String, required: true },
 });
 
-const PharmacySchema = new Schema<I_Pharmacy>(
+const PharmacySchema = new dynamoose.Schema(
   {
-    name: { type: String, required: true },
-    address: { type: PharmacyAddressSchema, required: true },
-    phone: { type: String, required: true },
+    id: {
+      type: String,
+      hashKey: true,
+      default: uuid,
+    },
+    name: {
+      type: String,
+      required: true,
+      index: {
+        name: "nameIndex",
+        type: "global",
+      },
+    },
+    address: {
+      type: Object,
+      schema: PharmacyAddressSchema,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
-    toJSON: {
-      versionKey: false,
-    },
-    toObject: {
-      versionKey: false,
-    },
   }
 );
 
-export default mongoose.model<I_Pharmacy>("Pharmacy", PharmacySchema);
+const PharmacyModel = dynamoose.model("Pharmacy", PharmacySchema, {
+  create: true,
+  waitForActive: true,
+});
+
+export default PharmacyModel;

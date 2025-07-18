@@ -23,7 +23,7 @@ export default class MedicineService {
     );
 
     const validMedicines = medicines.filter(
-      (med): med is I_Medicine => med !== null && med._id !== undefined
+      (med): med is I_Medicine => med !== null && med.id !== undefined
     );
 
     if (validMedicines.length === 0)

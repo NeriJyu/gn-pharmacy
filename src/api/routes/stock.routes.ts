@@ -15,14 +15,14 @@ stockRouter.get("/", async (req, res) => {
   }
 });
 
-stockRouter.get("/:id", async (req, res) => {
-  try {
-    const stock = await stockController.getById(req.params.id);
-    res.status(200).send({ status: "SUCCESS", data: stock });
-  } catch (err) {
-    handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
-  }
-});
+// stockRouter.get("/:id", async (req, res) => {
+//   try {
+//     const stock = await stockController.getById(req.params.id);
+//     res.status(200).send({ status: "SUCCESS", data: stock });
+//   } catch (err) {
+//     handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
+//   }
+// });
 
 stockRouter.get("/medicine/:medicineId", async (req, res) => {
   try {
@@ -42,22 +42,22 @@ stockRouter.post("/", async (req, res) => {
   }
 });
 
-stockRouter.put("/:id", async (req, res) => {
-  try {
-    const updated = await stockController.update(req.params.id, req.body);
-    res.status(200).send({ status: "SUCCESS", data: updated });
-  } catch (err) {
-    handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
-  }
-});
+// stockRouter.put("/:id", async (req, res) => {
+//   try {
+//     const updated = await stockController.update(req.params.id, req.body);
+//     res.status(200).send({ status: "SUCCESS", data: updated });
+//   } catch (err) {
+//     handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
+//   }
+// });
 
-stockRouter.delete("/:id", async (req, res) => {
-  try {
-    const result = await stockController.delete(req.params.id);
-    res.status(200).send({ status: "SUCCESS", message: result.message });
-  } catch (err) {
-    handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
-  }
-});
+// stockRouter.delete("/:id", async (req, res) => {
+//   try {
+//     const result = await stockController.delete(req.params.id);
+//     res.status(200).send({ status: "SUCCESS", message: result.message });
+//   } catch (err) {
+//     handleError(err, res, "Stock not found", StatusCodeErrorEnum.NOT_FOUND);
+//   }
+// });
 
 export default stockRouter;

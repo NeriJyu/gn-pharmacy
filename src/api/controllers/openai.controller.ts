@@ -15,35 +15,35 @@ export default class OpenAIController {
     return gptResponse;
   }
 
-  async recommendateMedicine(
-    message: string,
-    file?: Express.Multer.File
-  ): Promise<string> {
-    this.openaiService.validateRecommendateMedicine(message, file);
+  // async recommendateMedicine(
+  //   message: string,
+  //   file?: Express.Multer.File
+  // ): Promise<string> {
+  //   this.openaiService.validateRecommendateMedicine(message, file);
 
-    const validMedicines = await this.medicineService.validateMedicines(
-      message,
-      file
-    );
+  //   const validMedicines = await this.medicineService.validateMedicines(
+  //     message,
+  //     file
+  //   );
 
-    const validMedicineNames =
-      this.medicineService.validateMedicineName(validMedicines);
+  //   const validMedicineNames =
+  //     this.medicineService.validateMedicineName(validMedicines);
 
-    const validStockList = await this.stockService.validateStockList(
-      validMedicines
-    );
+  //   const validStockList = await this.stockService.validateStockList(
+  //     validMedicines
+  //   );
 
-    const formatedPharmacyDetails =
-      await this.pharmacyService.formatPharmacyDetails(validStockList);
+  //   const formatedPharmacyDetails =
+  //     await this.pharmacyService.formatPharmacyDetails(validStockList);
 
-    const recommendateMedicine =
-      this.openaiService.formatMedicinesWithPharmacies(
-        formatedPharmacyDetails,
-        validMedicineNames,
-        "-23.555739297468357",
-        "-46.690467698734174"
-      );
+  //   const recommendateMedicine =
+  //     this.openaiService.formatMedicinesWithPharmacies(
+  //       formatedPharmacyDetails,
+  //       validMedicineNames,
+  //       "-23.555739297468357",
+  //       "-46.690467698734174"
+  //     );
 
-    return recommendateMedicine;
-  }
+  //   return recommendateMedicine;
+  // }
 }

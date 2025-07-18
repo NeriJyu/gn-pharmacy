@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import { I_User, I_UserAddress } from "../../interfaces/user.interfaces";
+import dynamoose from "dynamoose";
+import { v4 as uuid } from "uuid";
 
-const UserAddressSchema = new Schema<I_UserAddress>({
+const UserAddressSchema = new dynamoose.Schema({
   street: { type: String, required: true },
   number: { type: String, required: true },
   complement: { type: String },
@@ -13,24 +13,52 @@ const UserAddressSchema = new Schema<I_UserAddress>({
   lon: { type: String, required: true },
 });
 
-const UserSchema = new Schema<I_User>(
+const UserSchema = new dynamoose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, select: false },
-    address: { type: UserAddressSchema, required: true },
-    role: { type: String, enum: ["user", "admin"], default: "user" },
-    refreshToken: { type: String, required: false },
+    id: {
+      type: String,
+      hashKey: true,
+      default: uuid,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      index: {
+        name: "emailIndex",
+        type: "global",
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: Object,
+      schema: UserAddressSchema,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    refreshToken: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
-    toJSON: {
-      versionKey: false,
-    },
-    toObject: {
-      versionKey: false,
-    },
   }
 );
 
-export default mongoose.model<I_User>("User", UserSchema);
+const UserModel = dynamoose.model("User", UserSchema, {
+  create: true,
+  waitForActive: true,
+});
+
+export default UserModel;

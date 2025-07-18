@@ -1,13 +1,14 @@
-import mongoose from 'mongoose';
+import dynamoose from "dynamoose";
 
-const uri = process.env.MONGODB_URI as string;
+const ddb = new dynamoose.aws.ddb.DynamoDB({
+    region: process.env.DYNAMODB_REGION,
+    endpoint: process.env.DYNAMODB_ENDPOINT,
+    credentials: {
+        accessKeyId: process.env.DYNAMODB_ACCESSKEYID || "",
+        secretAccessKey: process.env.DYNAMODB_SECRETACCESSKEY || "",
+    },
+});
 
-export const connectToDatabase = async () => {
-  try {
-    await mongoose.connect(uri);
-    console.log('📦 MongoDB connected!');
-  } catch (error) {
-    console.error('❌ Error connecting to MongoDB:', error);
-    process.exit(1);
-  }
-};
+dynamoose.aws.ddb.set(ddb);
+
+console.log("📦 Dynamoose configured to use DynamoDB!");
