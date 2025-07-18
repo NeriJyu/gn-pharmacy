@@ -17,9 +17,10 @@ const UserSchema = new Schema<I_User>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     address: { type: UserAddressSchema, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    refreshToken: { type: String, required: false },
   },
   {
     timestamps: true,

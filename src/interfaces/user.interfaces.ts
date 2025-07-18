@@ -11,10 +11,21 @@ export interface I_UserAddress {
 }
 
 export interface I_User {
-  _id?: string;
+  _id: string;
   name: string;
   email: string;
   password: string;
   address: I_UserAddress;
   role: "user" | "admin";
+  refreshToken?: string;
+}
+
+export interface I_CreatedUser {
+  _id?: string;
+  name: string;
+  email: string;
+  password?: string;
+  address: I_UserAddress;
+  role: "user" | "admin";
+  refreshToken?: string;
 }
