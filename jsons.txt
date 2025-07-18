@@ -1,0 +1,17 @@
+-----------------1--------------------
+intelegiencia artificial: máquina imitar o comportamento humano
+machine learning: focar em dados
+deep learning: usa rede neurais para realizar tarefas
+gen ia: gerar imagens, videos e textos avançados
+
+-----------------2--------------------
+machine learning: usar dados antigos para prever os futuros dados
+ml supervised learning: usam dados brutos
+ml unsupervised learning: dados brutos em que não há rótulos definidos ou qualquer anotação feita com dados fornecidos ao modelo
+ml reinforced learning: treinamento por tentativa e erro, sem enviar dados
+
+----------------3----------------------
+ESTUDAR MAIS NEURAL NETWORKS
+
+----------------4----------------------
+
