@@ -2,9 +2,7 @@ import { I_User } from "../../interfaces/user.interfaces";
 import UserModel from "../models/user.model";
 
 export default class UserRepository {
-  async create(
-    user: Omit<I_User, "id" | "createdAt" | "updatedAt">
-  ): Promise<I_User> {
+  async create(user: I_User): Promise<I_User> {
     const userToSave = {
       ...user,
       email: user.email.toLowerCase().trim(),
@@ -63,10 +61,7 @@ export default class UserRepository {
     return users;
   }
 
-  async updateById(
-    id: string,
-    updateData: Partial<Omit<I_User, "id">>
-  ): Promise<I_User | null> {
+  async updateById(id: string, updateData: I_User): Promise<I_User | null> {
     if (updateData.password) delete updateData.password;
     if (updateData.email) {
       updateData.email = updateData.email.toLowerCase().trim();

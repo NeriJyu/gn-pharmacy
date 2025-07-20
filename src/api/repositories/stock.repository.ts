@@ -28,7 +28,7 @@ export default class StockRepository {
   async updateByCompositeKey(
     pharmacyId: string,
     medicineId: string,
-    updateData: Partial<I_Stock>
+    updateData: I_Stock
   ): Promise<I_Stock | null> {
     await StockModel.update({ pharmacyId, medicineId }, updateData);
     return this.findByPharmacyAndMedicine(pharmacyId, medicineId);

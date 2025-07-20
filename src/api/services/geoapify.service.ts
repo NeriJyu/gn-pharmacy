@@ -1,4 +1,5 @@
 import axios from "axios";
+import { I_PharmacyAddress } from "../../interfaces/pharmacy.interfaces";
 
 export default class GeoapifyService {
   async coordinatesByCep(cep: string): Promise<any> {
@@ -15,6 +16,29 @@ export default class GeoapifyService {
     console.log("teste: ", result.lat.toString());
 
     return { lat: result.lat, lon: result.lon };
+  }
+
+  async addressByCep(address: I_PharmacyAddress): Promise<any> {
+    const url = `https://api.geoapify.com/v1/geocode/search?postcode=${address.cep}&filter=countrycode:br&lang=pt&apiKey=${process.env.GEOAPIFY_API_KEY}`;
+
+    const response = await axios.get(url);
+    const result = response.data.features[0].properties;
+
+    if (!result) throw new Error("CEP não encontrado");
+
+    const geoapifyAddress = {
+      street: result.street || "Nome da rua não encontrado",
+      neighborhood: result.suburb,
+      complement: address.complement,
+      number: address.number,
+      city: result.city,
+      state: result.state_code,
+      cep: address.cep,
+      lat: result.lat.toString(),
+      lon: result.lon.toString(),
+    };
+
+    return geoapifyAddress;
   }
 
   calculateDistanceInKM(

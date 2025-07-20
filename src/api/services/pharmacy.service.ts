@@ -1,9 +1,21 @@
-import { I_PharmacyStock } from "../../interfaces/pharmacy.interfaces";
+import {
+  I_PharmacyAddress,
+  I_PharmacyStock,
+} from "../../interfaces/pharmacy.interfaces";
 import { I_Stock } from "../../interfaces/stock.interfaces";
 import PharmacyRepository from "../repositories/pharmacy.repository";
+import GeoapifyService from "./geoapify.service";
 
 export default class PharmacyService {
   private pharmacyRepository = new PharmacyRepository();
+
+  private geoapifyService = new GeoapifyService();
+
+  async getPharmacyAddress(address: I_PharmacyAddress): Promise<I_PharmacyAddress> {
+    const geoapifyAddress = await this.geoapifyService.addressByCep(address);
+
+    return geoapifyAddress;
+  }
 
   // async formatPharmacyDetails(
   //   validStockList: I_Stock[]

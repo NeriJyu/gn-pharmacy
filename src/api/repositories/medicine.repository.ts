@@ -2,15 +2,14 @@ import { I_Medicine } from "../../interfaces/medicine.interfaces";
 import MedicineModel from "../models/medicine.model";
 
 export default class MedicineRepository {
-
-  async create(medicine: Omit<I_Medicine, "id" | "createdAt" | "updatedAt">): Promise<I_Medicine> {
+  async create(medicine: I_Medicine): Promise<I_Medicine> {
     const medicineToSave = {
       ...medicine,
       name: medicine.name.toLowerCase().trim(),
     };
 
     const newMedicine = await MedicineModel.create(medicineToSave);
-    
+
     return newMedicine.toJSON() as I_Medicine;
   }
 
@@ -20,9 +19,13 @@ export default class MedicineRepository {
   }
 
   async findByName(name: string): Promise<I_Medicine | null> {
-    const result = await MedicineModel.query("name").eq(name.toLowerCase().trim()).exec();
+    const result = await MedicineModel.query("name")
+      .eq(name.toLowerCase().trim())
+      .exec();
 
-    return result.count > 0 && result[0] ? (result[0].toJSON() as I_Medicine) : null;
+    return result.count > 0 && result[0]
+      ? (result[0].toJSON() as I_Medicine)
+      : null;
   }
 
   async findAll(): Promise<I_Medicine[]> {
@@ -32,7 +35,7 @@ export default class MedicineRepository {
 
   async updateById(
     id: string,
-    updateData: Partial<Omit<I_Medicine, "id">>
+    updateData: I_Medicine
   ): Promise<I_Medicine | null> {
     await MedicineModel.update({ id }, updateData);
     return this.findById(id);

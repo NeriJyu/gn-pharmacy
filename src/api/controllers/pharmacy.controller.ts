@@ -1,10 +1,16 @@
 import { I_Pharmacy } from "../../interfaces/pharmacy.interfaces";
 import PharmacyRepository from "../repositories/pharmacy.repository";
+import PharmacyService from "../services/pharmacy.service";
 
 export default class PharmacyController {
   private pharmacyRepository = new PharmacyRepository();
+  private pharmacyService = new PharmacyService();
 
   async create(pharmacy: I_Pharmacy): Promise<I_Pharmacy> {
+    const geoapifyAddress = await this.pharmacyService.getPharmacyAddress(pharmacy.address);
+
+    pharmacy.address = geoapifyAddress;
+
     return await this.pharmacyRepository.create(pharmacy);
   }
 

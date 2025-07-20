@@ -2,7 +2,7 @@ import { I_Pharmacy } from "../../interfaces/pharmacy.interfaces";
 import PharmacyModel from "../models/pharmacy.model";
 
 export default class PharmacyRepository {
-  async create(pharmacy: Omit<I_Pharmacy, "id" | "createdAt" | "updatedAt">): Promise<I_Pharmacy> {
+  async create(pharmacy: I_Pharmacy): Promise<I_Pharmacy> {
     const newPharmacy = await PharmacyModel.create(pharmacy);
     return newPharmacy.toJSON() as I_Pharmacy;
   }
@@ -22,7 +22,7 @@ export default class PharmacyRepository {
     return results.toJSON() as I_Pharmacy[];
   }
 
-  async updateById(id: string, updateData: Partial<Omit<I_Pharmacy, "id">>): Promise<I_Pharmacy | null> {
+  async updateById(id: string, updateData: I_Pharmacy): Promise<I_Pharmacy | null> {
     await PharmacyModel.update({ id }, updateData);
     return this.findById(id);
   }

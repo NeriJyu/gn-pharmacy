@@ -25,7 +25,7 @@ export default class UserController {
     return await this.userRepository.findAll();
   }
 
-  async update(id: string, data: Partial<I_User>): Promise<I_User> {
+  async update(id: string, data: I_User): Promise<I_User> {
     const updated = await this.userRepository.updateById(id, data);
 
     if (!updated) {

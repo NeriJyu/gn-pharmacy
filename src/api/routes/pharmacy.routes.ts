@@ -33,7 +33,7 @@ pharmacyRouter.post("/", async (req, res) => {
   }
 });
 
-pharmacyRouter.put("/:id", async (req, res) => {
+pharmacyRouter.patch("/:id", async (req, res) => {
   try {
     const updated = await pharmacyController.update(req.params.id, req.body);
     res.status(200).send({ status: "SUCCESS", data: updated });

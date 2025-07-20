@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/user.repository";
 import { I_Auth } from "../../interfaces/auth.interfaces";
+import { I_User } from "../../interfaces/user.interfaces";
 
 class AuthService {
   private userRepository = new UserRepository();
@@ -32,8 +33,8 @@ class AuthService {
       expiresIn: "15d",
     });
 
-    const userToUpdate = {
-      user,
+    const userToUpdate: I_User = {
+      ...user,
       refreshToken: refreshToken,
     };
 
