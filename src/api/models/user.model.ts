@@ -1,5 +1,6 @@
 import dynamoose from "dynamoose";
 import { v4 as uuid } from "uuid";
+import { UserRoleEnum } from "../enums/user.enum";
 
 const UserAddressSchema = new dynamoose.Schema({
   street: { type: String, required: true },
@@ -43,7 +44,7 @@ const UserSchema = new dynamoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: Object.values(UserRoleEnum),
       default: "user",
     },
     refreshToken: {
