@@ -5,7 +5,7 @@ import { handleError } from "../../utils/err.util";
 const authRouter = express.Router();
 const authController = new AuthController();
 
-authRouter.post("/", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 

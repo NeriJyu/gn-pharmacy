@@ -1,4 +1,4 @@
-import { I_User } from "../../interfaces/user.interfaces";
+import { I_User, I_UserUpdate } from "../../interfaces/user.interfaces";
 import UserModel from "../models/user.model";
 
 export default class UserRepository {
@@ -47,6 +47,8 @@ export default class UserRepository {
       .eq(email.toLowerCase().trim())
       .exec();
 
+    if (result.count === 0 || !result[0]) throw new Error("User not found");
+
     return result.count > 0 && result[0]
       ? (result[0].toJSON() as I_User)
       : null;
@@ -61,7 +63,7 @@ export default class UserRepository {
     return users;
   }
 
-  async updateById(id: string, updateData: I_User): Promise<I_User | null> {
+  async updateById(id: string, updateData: I_UserUpdate): Promise<I_User | null> {
     if (updateData.password) delete updateData.password;
     if (updateData.email) {
       updateData.email = updateData.email.toLowerCase().trim();

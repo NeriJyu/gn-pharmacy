@@ -23,3 +23,12 @@ export interface I_User {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface I_UserUpdate {
+  name?: string;
+  email?: string;
+  password?: string;
+  address?: I_UserAddress;
+  role?: UserRoleEnum;
+  refreshToken?: string;
+}

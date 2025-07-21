@@ -21,13 +21,6 @@ export default class MedicineController {
   }
 
   async getAll(): Promise<I_Medicine[]> {
-    const teste = await this.geoapifyService.coordinatesByCep(
-      "05434000"
-    );
-
-    console.log("teste: ", teste);
-    
-
     return await this.medicineRepository.findAll();
   }
 
