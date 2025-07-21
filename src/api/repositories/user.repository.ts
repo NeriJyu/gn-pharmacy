@@ -63,12 +63,7 @@ export default class UserRepository {
     return users;
   }
 
-  async updateById(id: string, updateData: I_UserUpdate): Promise<I_User | null> {
-    if (updateData.password) delete updateData.password;
-    if (updateData.email) {
-      updateData.email = updateData.email.toLowerCase().trim();
-    }
-
+  async updateById(id: string, updateData: I_UserUpdate): Promise<I_User | null> {  
     await UserModel.update({ id }, updateData);
 
     return this.findById(id);

@@ -29,37 +29,40 @@ class AuthService {
       expiresIn: "15m",
     });
 
-    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
-      expiresIn: "15d",
-    });
+    const refreshToken = jwt.sign(
+      payload,
+      process.env.REFRESH_JWT_SECRET || "secret",
+      {
+        expiresIn: "15d",
+      }
+    );
 
     const userToUpdate: I_UserUpdate = {
       refreshToken: refreshToken,
-      name: user.name,
-      email: user.email,
-      address: user.address,
-      role: user.role,
     };
 
     await this.userRepository.updateById(user.id, userToUpdate);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 
-  async refreshToken(oldToken: string): Promise<I_Auth> {
+  async refreshToken(oldRefreshToken: string): Promise<I_Auth> {
     try {
+      const oldToken = (
+        oldRefreshToken.includes("=")
+          ? oldRefreshToken.split("=")[1]
+          : oldRefreshToken
+      ).split(";")[0];
+
       const decoded = jwt.verify(
         oldToken,
-        process.env.JWT_SECRET || "secret"
+        process.env.REFRESH_JWT_SECRET || "secret"
       ) as jwt.JwtPayload;
 
-      const user = await this.userRepository.findById(decoded._id);
-      if (!user || user.refreshToken !== oldToken) {
+      const user = await this.userRepository.findById(decoded.id);
+
+      if (!user || user.refreshToken !== oldToken)
         throw new Error("Invalid refresh token");
-      }
 
       const newPayload = {
         id: user.id,
@@ -87,8 +90,7 @@ class AuthService {
       );
 
       const userToUpdate = {
-        ...user,
-        newRefreshToken,
+        refreshToken: newRefreshToken,
       };
 
       await this.userRepository.updateById(user.id, userToUpdate);
@@ -100,6 +102,18 @@ class AuthService {
     } catch (error) {
       throw new Error("Unauthorized");
     }
+  }
+
+  async logout(accessToken: string): Promise<void> {const decoded = jwt.verify(
+      accessToken,
+      process.env.JWT_SECRET || "secret"
+    ) as jwt.JwtPayload;
+
+    const userToUpdate = {
+      refreshToken: "",
+    };
+
+    await this.userRepository.updateById(decoded.id, userToUpdate);
   }
 
   validateLogin(email: string, password: string): void {
