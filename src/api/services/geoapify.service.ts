@@ -3,23 +3,18 @@ import { I_PharmacyAddress } from "../../interfaces/pharmacy.interfaces";
 
 export default class GeoapifyService {
   async coordinatesByCep(cep: string): Promise<any> {
-    const url = `https://api.geoapify.com/v1/geocode/search?postcode=${cep}&country=BR&format=json&apiKey=${process.env.GEOAPIFY_API_KEY}`;
+    const url = `${process.env.GEOAPIFY_URL}/search?postcode=${cep}&country=BR&format=json&apiKey=${process.env.GEOAPIFY_API_KEY}`;
 
     const response = await axios.get(url);
     const result = response.data.results[0];
 
-    console.log("response: ", response);
-
     if (!result) throw new Error("CEP não encontrado");
-
-    console.log(`CEP ${cep}: lat=${result.lat}, lon=${result.lon}`);
-    console.log("teste: ", result.lat.toString());
 
     return { lat: result.lat, lon: result.lon };
   }
 
   async addressByCep(address: I_PharmacyAddress): Promise<any> {
-    const url = `https://api.geoapify.com/v1/geocode/search?postcode=${address.cep}&filter=countrycode:br&lang=pt&apiKey=${process.env.GEOAPIFY_API_KEY}`;
+    const url = `${process.env.GEOAPIFY_URL}/search?postcode=${address.cep}&filter=countrycode:br&lang=pt&apiKey=${process.env.GEOAPIFY_API_KEY}`;
 
     const response = await axios.get(url);
     const result = response.data.features[0].properties;

@@ -17,26 +17,26 @@ export default class PharmacyService {
     return geoapifyAddress;
   }
 
-  // async formatPharmacyDetails(
-  //   validStockList: I_Stock[]
-  // ): Promise<I_PharmacyStock[]> {
-  //   return await Promise.all(
-  //     validStockList.map(async (stock) => {
-  //       const pharmacy = await this.pharmacyRepository.findById(
-  //         stock.pharmacyId.id!
-  //       );
+  async formatPharmacyDetails(
+    validStockList: I_Stock[]
+  ): Promise<I_PharmacyStock[]> {
+    return await Promise.all(
+      validStockList.map(async (stock) => {
+        const pharmacy = await this.pharmacyRepository.findById(
+          stock.pharmacyId
+        );
 
-  //       if (!pharmacy) throw new Error("Pharmacy not found");
+        if (!pharmacy) throw new Error("Pharmacy not found");
 
-  //       return {
-  //         phone: pharmacy.phone,
-  //         address: pharmacy.address,
-  //         pharmacyName: pharmacy.name,
-  //         medicineName: stock.medicineId.name,
-  //         price: stock.price,
-  //         quantity: stock.quantity,
-  //       };
-  //     })
-  //   );
-  // }
+        return {
+          phone: pharmacy.phone,
+          address: pharmacy.address,
+          pharmacyName: pharmacy.name,
+          medicineName: stock.medicineName,
+          price: stock.price,
+          quantity: stock.quantity,
+        };
+      })
+    );
+  }
 }

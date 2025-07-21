@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 app.use("/api", router);
 app.get("/", (req, res) => {
-  res.send("API rodando com DynamoDB e Dynamoose");
+  res.send("API rodando :)");
 });
 
 const startServer = async () => {

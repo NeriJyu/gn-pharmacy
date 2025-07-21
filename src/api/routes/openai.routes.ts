@@ -25,29 +25,29 @@ openaiRouter.post("/chat", async (req, res) => {
   }
 });
 
-// openaiRouter.post(
-//   "/recommendate-medicine",
-//   upload.single("file"),
-//   async (req, res) => {
-//     try {
-//       const recommendateMedicine = await openaiController.recommendateMedicine(
-//         req.body?.message,
-//         req.file
-//       );
+openaiRouter.post(
+  "/recommendate-medicine",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const recommendateMedicine = await openaiController.recommendateMedicine(
+        req.body?.message,
+        req.file
+      );
 
-//       res.status(200).send({
-//         status: "SUCCESS",
-//         data: recommendateMedicine,
-//       });
-//     } catch (err) {
-//       handleError(
-//         err,
-//         res,
-//         "An error occurred while processing your request",
-//         StatusCodeErrorEnum.BAD_REQUEST
-//       );
-//     }
-//   }
-// );
+      res.status(200).send({
+        status: "SUCCESS",
+        data: recommendateMedicine,
+      });
+    } catch (err) {
+      handleError(
+        err,
+        res,
+        "An error occurred while processing your request",
+        StatusCodeErrorEnum.BAD_REQUEST
+      );
+    }
+  }
+);
 
 export default openaiRouter;

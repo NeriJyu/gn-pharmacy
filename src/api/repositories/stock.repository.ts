@@ -1,9 +1,19 @@
 import { I_Stock } from "../../interfaces/stock.interfaces";
 import StockModel from "../models/stock.model";
+import MedicineRepository from "./medicine.repository";
 
 export default class StockRepository {
+  private medicineRepository = new MedicineRepository();
+
   async create(stock: I_Stock): Promise<I_Stock> {
+    const medicine = await this.medicineRepository.findById(stock.medicineId);
+
+    if (!medicine) throw new Error("Medicine not found");
+
+    stock.medicineName = medicine?.name;
+
     const newStock = await StockModel.create(stock);
+
     return newStock.toJSON() as I_Stock;
   }
 

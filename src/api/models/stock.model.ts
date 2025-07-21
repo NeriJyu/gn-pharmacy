@@ -14,6 +14,10 @@ const StockSchema = new dynamoose.Schema(
         type: "global",
       },
     },
+    medicineName: {
+      type: String,
+      required: true,
+    },
     price: {
       type: Number,
       required: true,
