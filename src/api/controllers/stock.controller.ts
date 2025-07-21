@@ -8,15 +8,15 @@ export default class StockController {
     return await this.stockRepository.create(stock);
   }
 
-  // async getById(id: string): Promise<I_Stock> {
-  //   const stock = await this.stockRepository.findById(id);
-
-  //   if (!stock) {
-  //     throw new Error("Stock entry not found");
-  //   }
-
-  //   return stock;
-  // }
+  async findByPharmacyAndMedicine(
+    pharmacyId: string,
+    medicineId: string
+  ): Promise<I_Stock | null> {
+    return await this.stockRepository.findByPharmacyAndMedicine(
+      pharmacyId,
+      medicineId
+    );
+  }
 
   async getAll(): Promise<I_Stock[]> {
     return await this.stockRepository.findAll();
@@ -26,23 +26,32 @@ export default class StockController {
     return await this.stockRepository.findAvailableByMedicine(medicineId);
   }
 
-  // async update(id: string, data: I_Stock): Promise<I_Stock> {
-  //   const updated = await this.stockRepository.updateById(id, data);
+  async update(
+    pharmacyId: string,
+    medicineId: string,
+    data: I_Stock
+  ): Promise<I_Stock> {
+    const updated = await this.stockRepository.update(
+      pharmacyId,
+      medicineId,
+      data
+    );
 
-  //   if (!updated) {
-  //     throw new Error("Stock entry not found");
-  //   }
+    if (!updated) {
+      throw new Error("Stock entry not found");
+    }
 
-  //   return updated;
-  // }
+    return updated;
+  }
 
-  // async delete(id: string): Promise<{ message: string }> {
-  //   const deleted = await this.stockRepository.deleteById(id);
+  async delete(
+    pharmacyId: string,
+    medicineId: string
+  ): Promise<{ message: string }> {
+    const deleted = await this.stockRepository.delete(pharmacyId, medicineId);
 
-  //   if (!deleted) {
-  //     throw new Error("Stock entry not found");
-  //   }
+    if (!deleted) throw new Error("Stock entry not found");
 
-  //   return { message: "Stock entry deleted successfully" };
-  // }
+    return { message: "Stock entry deleted successfully" };
+  }
 }

@@ -25,7 +25,7 @@ export default class StockRepository {
     return results.toJSON() as I_Stock[];
   }
 
-  async updateByCompositeKey(
+  async update(
     pharmacyId: string,
     medicineId: string,
     updateData: I_Stock
@@ -34,18 +34,18 @@ export default class StockRepository {
     return this.findByPharmacyAndMedicine(pharmacyId, medicineId);
   }
 
-  async deleteByCompositeKey(
+  async delete(
     pharmacyId: string,
     medicineId: string
-  ): Promise<I_Stock | null> {
+  ): Promise<{ message: string } | null> {
     const stockToDelete = await this.findByPharmacyAndMedicine(
       pharmacyId,
       medicineId
     );
-    if (!stockToDelete) {
-      return null;
-    }
+    if (!stockToDelete) return null;
+
     await StockModel.delete({ pharmacyId, medicineId });
-    return stockToDelete;
+
+    return { message: "Stock successfuly deleted" };
   }
 }

@@ -42,7 +42,7 @@ userRouter.post("/", async (req, res) => {
   }
 });
 
-userRouter.put("/:id", async (req, res) => {
+userRouter.patch("/:id", async (req, res) => {
   try {
     const updated = await userController.update(req.params.id, req.body);
     res.status(200).send({ status: "SUCCESS", data: updated });
