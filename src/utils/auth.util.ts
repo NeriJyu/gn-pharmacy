@@ -20,7 +20,7 @@ export const authenticateToken = (
     return;
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = splitAccessToken(authHeader);
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");

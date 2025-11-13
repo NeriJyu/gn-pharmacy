@@ -11,7 +11,9 @@ export default class PharmacyService {
 
   private geoapifyService = new GeoapifyService();
 
-  async getPharmacyAddress(address: I_PharmacyAddress): Promise<I_PharmacyAddress> {
+  async getPharmacyAddress(
+    address: I_PharmacyAddress
+  ): Promise<I_PharmacyAddress> {
     const geoapifyAddress = await this.geoapifyService.addressByCep(address);
 
     return geoapifyAddress;

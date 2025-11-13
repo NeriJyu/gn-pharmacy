@@ -17,9 +17,10 @@ export default class GeoapifyService {
     const url = `${process.env.GEOAPIFY_URL}/search?postcode=${address.cep}&filter=countrycode:br&lang=pt&apiKey=${process.env.GEOAPIFY_API_KEY}`;
 
     const response = await axios.get(url);
-    const result = response.data.features[0].properties;
 
-    if (!result) throw new Error("CEP não encontrado");
+    if (!response.data.features[0]) throw new Error("CEP não encontrado");
+
+    const result = response.data.features[0].properties;
 
     const geoapifyAddress = {
       street: result.street || "Nome da rua não encontrado",

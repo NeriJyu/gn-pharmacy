@@ -40,7 +40,7 @@ userRouter.get("/email/:email", authenticateToken, async (req, res) => {
   }
 });
 
-userRouter.post("/", authenticateToken, async (req, res) => {
+userRouter.post("/", async (req, res) => {
   try {
     const created = await userController.create(req.body);
     res.status(201).send({ status: "SUCCESS", data: created });

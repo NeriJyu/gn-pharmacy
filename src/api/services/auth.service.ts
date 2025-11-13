@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/user.repository";
 import { I_Auth } from "../../interfaces/auth.interfaces";
-import { I_User, I_UserUpdate } from "../../interfaces/user.interfaces";
+import { splitAccessToken } from "../../utils/auth.util";
 
 class AuthService {
   private userRepository = new UserRepository();
@@ -26,33 +26,33 @@ class AuthService {
     };
 
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
-      expiresIn: "15m",
+      expiresIn: "5m",
     });
 
     const refreshToken = jwt.sign(
       payload,
       process.env.REFRESH_JWT_SECRET || "secret",
-      {
-        expiresIn: "15d",
-      }
+      { expiresIn: "15d" }
     );
 
-    const userToUpdate: I_UserUpdate = {
-      refreshToken: refreshToken,
-    };
+    let currentTokens = user.refreshTokens || [];
 
-    await this.userRepository.updateById(user.id, userToUpdate);
+    if (currentTokens.length >= 5) {
+      currentTokens.shift();
+    }
+
+    currentTokens.push(refreshToken);
+
+    await this.userRepository.updateById(user.id, {
+      refreshTokens: currentTokens,
+    });
 
     return { accessToken, refreshToken };
   }
 
   async refreshToken(oldRefreshToken: string): Promise<I_Auth> {
     try {
-      const oldToken = (
-        oldRefreshToken.includes("=")
-          ? oldRefreshToken.split("=")[1]
-          : oldRefreshToken
-      ).split(";")[0];
+      const oldToken = splitAccessToken(oldRefreshToken);
 
       const decoded = jwt.verify(
         oldToken,
@@ -61,8 +61,11 @@ class AuthService {
 
       const user = await this.userRepository.findById(decoded.id);
 
-      if (!user || user.refreshToken !== oldToken)
+      const currentTokens = user?.refreshTokens || [];
+
+      if (!user || !currentTokens.includes(oldToken)) {
         throw new Error("Invalid refresh token");
+      }
 
       const newPayload = {
         id: user.id,
@@ -76,24 +79,22 @@ class AuthService {
       const newAccessToken = jwt.sign(
         newPayload,
         process.env.JWT_SECRET || "secret",
-        {
-          expiresIn: "15m",
-        }
+        { expiresIn: "5m" }
       );
 
       const newRefreshToken = jwt.sign(
         newPayload,
-        process.env.JWT_SECRET || "secret",
-        {
-          expiresIn: "15d",
-        }
+        process.env.REFRESH_JWT_SECRET || "secret",
+        { expiresIn: "15d" }
       );
 
-      const userToUpdate = {
-        refreshToken: newRefreshToken,
-      };
+      const newRefreshTokensArray = currentTokens
+        .filter((token) => token !== oldToken)
+        .concat(newRefreshToken);
 
-      await this.userRepository.updateById(user.id, userToUpdate);
+      await this.userRepository.updateById(user.id, {
+        refreshTokens: newRefreshTokensArray,
+      });
 
       return {
         accessToken: newAccessToken,
@@ -104,16 +105,31 @@ class AuthService {
     }
   }
 
-  async logout(accessToken: string): Promise<void> {const decoded = jwt.verify(
-      accessToken,
-      process.env.JWT_SECRET || "secret"
-    ) as jwt.JwtPayload;
+  async logout(oldRefreshToken: string): Promise<void> {
+    try {
+      const refreshToken = splitAccessToken(oldRefreshToken);
 
-    const userToUpdate = {
-      refreshToken: "",
-    };
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_JWT_SECRET || "secret"
+      ) as jwt.JwtPayload;
 
-    await this.userRepository.updateById(decoded.id, userToUpdate);
+      const user = await this.userRepository.findById(decoded.id);
+
+      if (!user) return;
+
+      const currentTokens = user.refreshTokens || [];
+
+      const newTokens = currentTokens.filter(
+        (token) => token !== refreshToken
+      );
+
+      await this.userRepository.updateById(user.id, {
+        refreshTokens: newTokens,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   validateLogin(email: string, password: string): void {

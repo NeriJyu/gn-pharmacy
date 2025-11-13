@@ -47,8 +47,10 @@ const UserSchema = new dynamoose.Schema(
       enum: Object.values(UserRoleEnum),
       default: UserRoleEnum.USER,
     },
-    refreshToken: {
-      type: String,
+    refreshTokens: {
+      type: Array,
+      schema: [String], 
+      default: [],     
       required: false,
     },
   },

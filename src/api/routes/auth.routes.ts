@@ -11,26 +11,8 @@ authRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const token = await authController.signIn(email, password);
-    const cookieAccessTokenOptions = {
-      maxAge: 15 * 60 * 1000,
-      httpOnly: true,
-      secure: false,
-      path: "/",
-      domain: "localhost",
-    };
 
-    const refreshTokenCookieOptions = {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: false,
-      path: "/api/auth/refresh",
-      domain: "localhost",
-    };
-
-    res.cookie("accessToken", token.accessToken, cookieAccessTokenOptions);
-    res.cookie("refreshToken", token.refreshToken, refreshTokenCookieOptions);
-
-    res.status(200).send({ status: "SUCCESS", message: "OK" });
+    res.status(200).send({ status: "SUCCESS", message: "OK", data: token });
   } catch (err) {
     handleError(err, res, "Failed to log in");
   }
@@ -38,35 +20,13 @@ authRouter.post("/login", async (req, res) => {
 
 authRouter.post("/refresh", async (req, res) => {
   try {
-    const existingRefreshToken = req.headers.cookie;
+    const existingRefreshToken = req.headers.authorization;
+
     if (!existingRefreshToken) throw new Error("Refresh not provided");
 
     const newToken = await authController.refreshToken(existingRefreshToken);
 
-    const accessTokenCookieOptions = {
-      maxAge: 15 * 60 * 1000,
-      httpOnly: true,
-      secure: false,
-      path: "/",
-      domain: "localhost",
-    };
-
-    const refreshTokenCookieOptions = {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: false,
-      path: "/api/auth/refresh",
-      domain: "localhost",
-    };
-
-    res.cookie("accessToken", newToken.accessToken, accessTokenCookieOptions);
-    res.cookie(
-      "refreshToken",
-      newToken.refreshToken,
-      refreshTokenCookieOptions
-    );
-
-    res.status(200).send({ status: "SUCCESS", message: "Tokens updated" });
+    res.status(200).send({ status: "SUCCESS", message: "OK", data: newToken });
   } catch (err) {
     handleError(err, res, "Failed to refresh tokens");
   }
@@ -74,26 +34,11 @@ authRouter.post("/refresh", async (req, res) => {
 
 authRouter.post("/logout", authenticateToken, async (req, res) => {
   try {
-    await authController.logout(splitAccessToken(req.headers.authorization!));
+    const existingRefreshToken = req.headers.authorization;
 
-    const accessTokenCookieOptions = {
-      maxAge: -1,
-      httpOnly: true,
-      secure: false,
-      path: "/",
-      domain: "localhost",
-    };
+    if (!existingRefreshToken) throw new Error("Refresh not provided");
 
-    const refreshTokenCookieOptions = {
-      maxAge: -1,
-      httpOnly: true,
-      secure: false,
-      path: "/api/auth/refresh",
-      domain: "localhost",
-    };
-
-    res.cookie("accessToken", "", accessTokenCookieOptions);
-    res.cookie("refreshToken", "", refreshTokenCookieOptions);
+    await authController.logout(existingRefreshToken);
 
     res.status(200).send({ status: "SUCCESS", message: "Logout with success" });
   } catch (err) {

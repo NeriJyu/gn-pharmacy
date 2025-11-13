@@ -7,6 +7,7 @@ import { tmpdir } from "os";
 import { promises as fsp } from "fs";
 import fs from "fs";
 import GeoapifyService from "./geoapify.service";
+// import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export default class OpenAIService {
   private geoapifyService = new GeoapifyService();
@@ -14,6 +15,13 @@ export default class OpenAIService {
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
+  // s3 = new S3Client({
+  //   region: process.env.AWS_REGION,
+  //   credentials: {
+  //     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  //   },
+  // });
 
   async askChatGPT(message: string): Promise<string> {
     const response = await this.openai.chat.completions.create({
@@ -24,6 +32,52 @@ export default class OpenAIService {
 
     return response.choices[0].message.content || "";
   }
+
+  // async createMP3Audio(text: string): Promise<any> {
+  //   try {
+  //     const mp3 = await this.openai.audio.speech.create({
+  //       model: "gpt-4o-mini-tts",
+  //       voice: "coral",
+  //       input:
+  //         "O remédio 'dipirona' está disponível na seguinte farmácia: Nome: Farmácia Bem Legal.  Endereço: Rua das Flores, 987 - Bela Vista, São Paulo - SP, CEP: 01310000.  Telefone: 31998877766. Preço: R$ 8.40.  Quantidade disponível: 20.  Distância: 4.65 km.",
+  //       instructions:
+  //         "Ignore os emojis. Fale em português brasileiro. Fale de maneira natural e amigável, com pequenas pausas entre as frases, como em uma conversa real.",
+  //     });
+
+  //     const buffer = Buffer.from(await mp3.arrayBuffer());
+
+  //     const key = `audios/teste2.mp3`;
+
+  //     const bucketName = process.env.AWS_S3_BUCKET;
+
+  //     await this.s3.send(
+  //       new PutObjectCommand({
+  //         Bucket: bucketName,
+  //         Key: key,
+  //         Body: buffer,
+  //         ContentType: "audio/mpeg",
+  //       })
+  //     );
+
+  //     return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
+
+  // async createAudioStream(text: string): Promise<any> {
+  //   const response = await this.openai.audio.speech.create({
+  //     model: "gpt-4o-mini-tts",
+  //     voice: "coral",
+  //     input:
+  //       "O remédio 'dipirona' está disponível na seguinte farmácia: Nome: Farmácia Bem Legal.  Endereço: Rua das Flores, 987 - Bela Vista, São Paulo - SP, CEP: 01310000.  Telefone: 31998877766. Preço: R$ 8.40.  Quantidade disponível: 20.  Distância: 4.65 km.",
+  //     instructions:
+  //       "Fale em português brasileiro. Fale de maneira natural e amigável, com pequenas pausas entre as frases, como em uma conversa real.",
+  //     response_format: "opus",
+  //   });
+
+  //   return response.body;
+  // }
 
   async selectMedicinesByImage(
     imageBuffer: any,

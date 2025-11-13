@@ -19,7 +19,7 @@ export interface I_User {
   password?: string;
   address: I_UserAddress;
   role: UserRoleEnum;
-  refreshToken?: string;
+  refreshTokens?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -30,5 +30,5 @@ export interface I_UserUpdate {
   password?: string;
   address?: I_UserAddress;
   role?: UserRoleEnum;
-  refreshToken?: string;
+  refreshTokens?: string[];
 }

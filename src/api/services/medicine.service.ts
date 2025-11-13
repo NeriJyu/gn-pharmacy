@@ -10,7 +10,7 @@ export default class MedicineService {
   async validateMedicines(
     message: any,
     fileBuffer?: any
-  ): Promise<I_Medicine[]> {
+  ): Promise<{ isValid: boolean; medicines?: I_Medicine[]; message?: string }> {
     const selectedMedicines = await this.openaiService.selectMedicines(
       message,
       fileBuffer
@@ -27,9 +27,9 @@ export default class MedicineService {
     );
 
     if (validMedicines.length === 0)
-      throw new Error("No medicines found for the provided names");
+      return { isValid: false, message: "Medicamento(s) não encontrado(s)" };
 
-    return validMedicines;
+    return { isValid: true, medicines: validMedicines };
   }
 
   validateMedicineName(validMedicines: I_Medicine[]): string[] {
