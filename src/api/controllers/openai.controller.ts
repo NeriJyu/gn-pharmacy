@@ -18,7 +18,7 @@ export default class OpenAIController {
   async recommendateMedicine(
     message: string,
     file?: Express.Multer.File
-  ): Promise<string> {
+  ): Promise<any> {
     this.openaiService.validateRecommendateMedicine(message, file);
 
     const validMedicines = await this.medicineService.validateMedicines(
@@ -47,49 +47,19 @@ export default class OpenAIController {
         "-46.690467698734174"
       );
 
-    // const mp3 = await this.openaiService.createMP3Audio(recommendateMedicine);
+    const formatSimplifiedMedicineInfo =
+      this.openaiService.formatSimplifiedMedicineInfo(
+        formatedPharmacyDetails,
+        validMedicineNames
+      );
 
-    // console.log("recommendateMedicine: ", mp3);
+    const audioUrl = await this.openaiService.generateSpeechFromText(
+      formatSimplifiedMedicineInfo
+    );
 
-    return recommendateMedicine;
+    return {
+      recommendateMedicine,
+      audio: audioUrl,
+    };
   }
-
-  //   async recommendateMedicineTeste(
-  //     message: string,
-  //     file?: Express.Multer.File
-  //   ): Promise<any> {
-  //     this.openaiService.validateRecommendateMedicine(message, file);
-
-  //     const validMedicines = await this.medicineService.validateMedicines(
-  //       message,
-  //       file
-  //     );
-
-  //     const validMedicineNames =
-  //       this.medicineService.validateMedicineName(validMedicines);
-
-  //     const validStockList = await this.stockService.validateStockList(
-  //       validMedicines
-  //     );
-
-  //     const formatedPharmacyDetails =
-  //       await this.pharmacyService.formatPharmacyDetails(validStockList);
-
-  //     const recommendateMedicine =
-  //       this.openaiService.formatMedicinesWithPharmacies(
-  //         formatedPharmacyDetails,
-  //         validMedicineNames,
-  //         "-23.555739297468357",
-  //         "-46.690467698734174"
-  //       );
-
-  //     const opus = await this.openaiService.createAudioStream(
-  //       recommendateMedicine
-  //     );
-  //     // const mp3 = await this.openaiService.createMP3Audio(recommendateMedicine);
-
-  //     // console.log("recommendateMedicine: ", mp3);
-
-  //     return opus;
-  //   }
 }
