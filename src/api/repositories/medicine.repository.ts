@@ -18,14 +18,13 @@ export default class MedicineRepository {
     return medicine ? (medicine.toJSON() as I_Medicine) : null;
   }
 
-  async findByName(name: string): Promise<I_Medicine | null> {
-    const result = await MedicineModel.query("name")
-      .eq(name.toLowerCase().trim())
+  async findByName(name: string): Promise<I_Medicine[]> {
+    const results = await MedicineModel.scan()
+      .where("name")
+      .contains(name.toLowerCase().trim())
       .exec();
 
-    return result.count > 0 && result[0]
-      ? (result[0].toJSON() as I_Medicine)
-      : null;
+    return results.toJSON() as I_Medicine[];
   }
 
   async findAll(): Promise<I_Medicine[]> {

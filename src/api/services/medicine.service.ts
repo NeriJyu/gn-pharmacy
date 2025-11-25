@@ -22,9 +22,9 @@ export default class MedicineService {
       })
     );
 
-    const validMedicines = medicines.filter(
-      (med): med is I_Medicine => med !== null && med.id !== undefined
-    );
+    const validMedicines = medicines
+      .flat()
+      .filter((med): med is I_Medicine => med !== null && med.id !== undefined);
 
     if (validMedicines.length === 0)
       return { isValid: false, message: "Medicamento(s) não encontrado(s)" };
